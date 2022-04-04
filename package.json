@@ -1,13 +1,13 @@
 {
   "name": "spotify-api-project",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "My sptify api project",
   "main": "dist/app.js",
   "scripts": {
     "start": "tsc && node dist/index.js",
     "debug": "ts-node src/index.ts",
     "dev": "tsc-watch --onSuccess \"node dist/index.js\"",
-    "build": "tsc && node dist/index.js",
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky install"
   },
