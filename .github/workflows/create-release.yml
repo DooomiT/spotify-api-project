@@ -14,13 +14,14 @@ jobs:
       - uses: Klemensas/action-autotag@stable
         with:
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+        id: tag
       - uses: actions/github-script@v6
         with:
           script: |
             github.rest.repos.createRelease({
               owner: "DooomiT",
               repo: "spotify-api-project",
-              tag_name: "${{ steps.previous_step.outputs.tagname }}",
+              tag_name: "${{ steps.tag.outputs.tagname }}",
               draft: true,
               generate_release_notes: true,
             });
