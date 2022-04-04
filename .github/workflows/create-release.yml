@@ -20,7 +20,7 @@ jobs:
             github.rest.repos.createRelease({
               owner = "DooomiT",
               repo = "spotify-api-project",
-              tag_name = "${{ steps.previous_step.outputs.tagname }}"",
+              tag_name = "${{ steps.previous_step.outputs.tagname }}",
               draft = true,
               generate_release_notes = true,
             });
