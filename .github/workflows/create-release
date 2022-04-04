@@ -3,7 +3,7 @@ name: Create Release
 on:
   push:
     branch: 
-      - master
+      - main
 jobs:
   build:
     name: Create Release
