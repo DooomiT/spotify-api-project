@@ -14,33 +14,66 @@
     return hashParams;
   }
 
-  var userProfileSource = document.getElementById(
-      "user-profile-template"
-    ).innerHTML,
-    userProfileTemplate = Handlebars.compile(userProfileSource),
-    userProfilePlaceholder = document.getElementById("user-profile");
+  /**
+   * Creeates a new template and placeholder
+   * @param {string} key - The prefix of the returned object properties
+   * @param {string} templateID - ID of the template
+   * @param {string} placeholderID - ID of the placeholder
+   * @returns {object} - Object with the template and placeholder
+   */
+  function createTemplate(key, templateID, placeHolderID) {
+    var source = document.getElementById(templateID).innerHTML;
+    var template = Handlebars.compile(source);
+    var placeholder = document.getElementById(placeHolderID);
+    const templateKey = `${key}Template`;
+    const placeHolderKey = `${key}Placeholder`;
+    return {
+      [templateKey]: template,
+      [placeHolderKey]: placeholder,
+    };
+  }
 
-  var oauthSource = document.getElementById("oauth-template").innerHTML,
-    oauthTemplate = Handlebars.compile(oauthSource),
-    oauthPlaceholder = document.getElementById("oauth");
+  /**
+   *
+   * @param {string} url - The url to fetch
+   * @param {object} template - The template be filled with the response data
+   * @param {object} placeHolder - The placeholder to insert the template
+   */
+  function updatePlaceHolder(url, template, placeHolder) {
+    $.ajax({
+      url: url,
+      crossDomain: true,
+      success: function (response) {
+        placeHolder.innerHTML = template(response);
+      },
+    });
+  }
 
-  var userTopTracksSource = document.getElementById(
-      "user-top-tracks-template"
-    ).innerHTML,
-    userTopTracksTemplate = Handlebars.compile(userTopTracksSource),
-    userTopTracksPlaceholder = document.getElementById("user-top-tracks");
-
-  var userTopArtistsSource = document.getElementById(
-      "user-top-artists-template"
-    ).innerHTML,
-    userTopArtistsTemplate = Handlebars.compile(userTopArtistsSource),
-    userTopArtistsPlaceholder = document.getElementById("user-top-artists");
-
-  var userPlaylists = document.getElementById(
-      "user-playlists-template"
-    ).innerHTML,
-    userPlaylistsTemplate = Handlebars.compile(userPlaylists),
-    userPlaylistsPlaceholder = document.getElementById("user-playlists");
+  var { oauthTemplate, oauthPlaceholder } = createTemplate(
+    "oauth",
+    "oauth-template",
+    "oauth"
+  );
+  var { userProfileTemplate, userProfilePlaceholder } = createTemplate(
+    "userProfile",
+    "user-profile-template",
+    "user-profile"
+  );
+  var { userTopTracksTemplate, userTopTracksPlaceholder } = createTemplate(
+    "userTopTracks",
+    "user-top-tracks-template",
+    "user-top-tracks"
+  );
+  var { userTopArtistsTemplate, userTopArtistsPlaceholder } = createTemplate(
+    "userTopArtists",
+    "user-top-artists-template",
+    "user-top-artists"
+  );
+  var { userPlaylistsTemplate, userPlaylistsPlaceholder } = createTemplate(
+    "userPlaylists",
+    "user-playlists-template",
+    "user-playlists"
+  );
 
   var params = getHashParams();
 
@@ -52,54 +85,34 @@
     alert("There was an error during the authentication");
   } else {
     if (access_token) {
-      // render oauth info
       oauthPlaceholder.innerHTML = oauthTemplate({
         access_token: access_token,
         refresh_token: refresh_token,
       });
       const query = new URLSearchParams({ access_token: access_token });
-      $.ajax({
-        url: "http://localhost:8888/me?" + query.toString(),
-        crossDomain: true,
-        success: function (response) {
-          userProfilePlaceholder.innerHTML = userProfileTemplate(response);
-          $("#login").hide();
-          $("#loggedin").show();
-        },
-      });
-      // get me/top/tracks
-      $.ajax({
-        url: "http://localhost:8888/me/top/tracks?" + query.toString(),
-        crossDomain: true,
-        success: function (response) {
-          userTopTracksPlaceholder.innerHTML = userTopTracksTemplate(response);
-          $("#login").hide();
-          $("#loggedin").show();
-        },
-      });
-      // get me/top/artists
-      $.ajax({
-        url: "http://localhost:8888/me/top/artists?" + query.toString(),
-        crossDomain: true,
-        success: function (response) {
-          userTopArtistsPlaceholder.innerHTML =
-            userTopArtistsTemplate(response);
-          $("#login").hide();
-          $("#loggedin").show();
-        },
-      });
-      // get me/playlists
-      $.ajax({
-        url: "http://localhost:8888/me/playlists?" + query.toString(),
-        crossDomain: true,
-        success: function (response) {
-          userPlaylistsPlaceholder.innerHTML = userPlaylistsTemplate(response);
-          $("#login").hide();
-          $("#loggedin").show();
-        },
-      });
+      updatePlaceHolder(
+        "/me?" + query.toString(),
+        userProfileTemplate,
+        userProfilePlaceholder
+      );
+      updatePlaceHolder(
+        "/me/top/tracks?" + query.toString(),
+        userTopTracksTemplate,
+        userTopTracksPlaceholder
+      );
+      updatePlaceHolder(
+        "/me/top/artists?" + query.toString(),
+        userTopArtistsTemplate,
+        userTopArtistsPlaceholder
+      );
+      updatePlaceHolder(
+        "/me/playlists?" + query.toString(),
+        userPlaylistsTemplate,
+        userPlaylistsPlaceholder
+      );
+      $("#login").hide();
+      $("#loggedin").show();
     } else {
-      // render initial screen
       $("#login").show();
       $("#loggedin").hide();
     }
