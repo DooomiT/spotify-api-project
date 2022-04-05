@@ -10,6 +10,9 @@ changelog:
     - title: Exciting New Features 🎉
       labels:
         - enhancement
+    - title: Reduced Technical dept
+      labels:
+        - technical-debt
     - title: Other Changes
       labels:
         - "*"
